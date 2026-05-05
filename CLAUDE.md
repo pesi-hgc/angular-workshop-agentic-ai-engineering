@@ -46,3 +46,112 @@ The app requires the bookmonkey API running separately — without it, all HTTP 
 ## TypeScript
 
 Strict mode is fully enabled (`strict: true`, `strictTemplates: true`). All new code must type-check without errors. Use `npm run build` or the dev server to surface type errors quickly.
+
+## Coding Rules
+
+These are hard constraints derived from past refactoring. Violating them requires an explicit reason.
+
+### Templates — control flow
+
+Never use `*ngIf` or `*ngFor`. Always use the Angular 17+ built-in control flow syntax:
+
+```html
+@if (loading) { … }
+@if (!loading && book) { … } @else { … }
+@for (book of books; track book.id) { … }
+```
+
+`@for` requires a `track` expression using a unique field (e.g. `book.id`), never `$index`.
+Remove `CommonModule` from `imports` arrays — it is only needed for the deprecated directive syntax.
+
+### Templates — async state
+
+Every component that performs an async operation must declare and render all three states:
+
+```ts
+loading = true;
+error: string | null = null;
+data?: SomeType;
+```
+
+```html
+@if (loading) { <!-- spinner --> }
+@else if (error) { <p class="text-red-600">{{ error }}</p> }
+@else if (data) { <!-- content --> }
+```
+
+Never leave an unhandled state where the template renders nothing silently.
+
+### Subscriptions — teardown
+
+Every `subscribe()` in a component must be preceded by `takeUntilDestroyed(this.destroyRef)`:
+
+```ts
+private destroyRef = inject(DestroyRef);
+
+this.someObservable$.pipe(
+  takeUntilDestroyed(this.destroyRef)
+).subscribe(…);
+```
+
+No `OnDestroy` + manual `unsubscribe()` patterns. No bare `.subscribe()` without teardown.
+
+### Routing — reactive params
+
+Never read route parameters via `route.snapshot.paramMap` inside components that can be
+navigated to from sibling routes. Always use the `paramMap` Observable with `switchMap`:
+
+```ts
+this.route.paramMap.pipe(
+  map(params => params.get('isbn')),
+  filter(Boolean),
+  switchMap(isbn => this.bookApiClient.getBook(isbn)),
+  takeUntilDestroyed(this.destroyRef)
+).subscribe(…);
+```
+
+### HTTP errors — interceptor owns toasts
+
+`HttpErrorInterceptor` (`src/app/shared/http-error.interceptor.ts`) is registered globally
+and shows the user-facing toast for every HTTP failure. Component error handlers must only
+update local state (`loading = false`, `error = '…'`) — they must not call `ToastService`
+directly for HTTP errors.
+
+### External URLs — environment files
+
+No URL, hostname, or port number may appear as a string literal inside a service or component.
+All external endpoints must come from `environment.*`:
+
+```ts
+// src/environments/environment.ts
+export const environment = { production: false, apiUrl: 'http://localhost:4730' };
+```
+
+### Interfaces — match the API
+
+Interface fields must reflect what the API actually returns. If a field is sometimes absent,
+mark it optional:
+
+```ts
+cover?: string;    // not required — some books have no cover
+abstract?: string; // not required — some books have no abstract
+```
+
+### Component extraction — no duplication
+
+Any template block that appears in more than one component must be extracted into its own
+standalone component. The shared `BookCoverComponent` in `src/app/books/book-cover.component.ts`
+is the canonical example.
+
+### Imports — precise, not broad
+
+Import only the directives a component actually uses. Never import `RouterModule` when only
+`RouterLink` is needed:
+
+```ts
+// correct
+imports: [RouterLink]
+
+// wrong — pulls in unused directives
+imports: [RouterModule]
+```
