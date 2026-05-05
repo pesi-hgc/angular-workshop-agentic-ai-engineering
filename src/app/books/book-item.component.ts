@@ -9,7 +9,8 @@ import { Book } from './book';
   imports: [CommonModule, RouterModule],
   template: `
     <div
-      class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full"
+      [routerLink]="['/books', book.isbn]"
+      class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full cursor-pointer"
     >
       <div class="relative aspect-[3/4] overflow-hidden">
         <img

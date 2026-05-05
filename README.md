@@ -12,6 +12,10 @@
   <br>
 </p>
 
+## Architecture
+
+For a high-level overview of the project structure, components, data flow, and tooling, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ## Local Development
 
 | Command       | Description                                      |
