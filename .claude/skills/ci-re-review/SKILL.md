@@ -42,7 +42,7 @@ You review the issue as a **software requirement**: clarity, completeness, and i
 
 ### Next steps
 - If **SUFFICIENT:** set issue-label `ready-for-implementation` and suggest a feature branch name.
-- If **NEEDS IMPROVEMENT:** set issue-label `needs-clarification` and **specific questions** (not generic).
+- If **NEEDS IMPROVEMENT:** set issue-label `needs-clarification` and suggest **specific questions** (not generic).
 
 ---
 _Automated analysis._
