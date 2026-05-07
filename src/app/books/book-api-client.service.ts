@@ -1,23 +1,44 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable, map } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { Book } from './book';
+
+export const PAGE_SIZE = 12;
+
+export interface BookPage {
+  books: Book[];
+  total: number;
+}
+
+export interface GetBooksArgs {
+  page: number;
+  pageSize: number;
+  search?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class BookApiClient {
-  private readonly apiUrl = 'http://localhost:4730/books';
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = `${environment.apiUrl}/books`;
 
-  constructor(private http: HttpClient) {}
+  getBooks(args: GetBooksArgs): Observable<BookPage> {
+    let params = new HttpParams()
+      .set('_page', String(args.page))
+      .set('_limit', String(args.pageSize));
 
-  getBooks(pageSize: number = 10, searchTerm?: string): Observable<Book[]> {
-    let params = new HttpParams().set('_limit', pageSize.toString());
-
-    if (searchTerm) {
-      // Search in title and author fields
-      params = params.set('q', searchTerm);
+    if (args.search) {
+      params = params.set('q', args.search);
     }
 
-    return this.http.get<Book[]>(this.apiUrl, { params });
+    return this.http
+      .get<Book[]>(this.apiUrl, { params, observe: 'response' })
+      .pipe(
+        map(response => ({
+          books: response.body ?? [],
+          total: Number(response.headers.get('X-Total-Count') ?? response.body?.length ?? 0)
+        }))
+      );
   }
 
   getBook(isbn: string): Observable<Book> {
