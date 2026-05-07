@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(Get-ChildItem -Path \"c:\\\\git\\\\workshop\\\\angular-workshop-agentic-ai-engineering\\\\src\" -Recurse -Include \"*detail*\", \"*stub*\", \"*empty*\" -ErrorAction SilentlyContinue)"
-    ]
-  }
-}

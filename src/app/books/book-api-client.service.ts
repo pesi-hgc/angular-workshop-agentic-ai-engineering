@@ -20,7 +20,11 @@ export class BookApiClient {
     return this.http.get<Book[]>(this.apiUrl, { params });
   }
 
-  getBook(isbn: string): Observable<Book> {
-    return this.http.get<Book>(`${this.apiUrl}/${isbn}`);
+  getBookById(id: string): Observable<Book> {
+    return this.http.get<Book>(`${this.apiUrl}/${id}`);
+  }
+
+  updateBook(id: string, book: Book): Observable<Book> {
+    return this.http.put<Book>(`${this.apiUrl}/${id}`, book);
   }
 }
