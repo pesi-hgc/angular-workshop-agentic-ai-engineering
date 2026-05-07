@@ -1,9 +1,9 @@
 ---
-name: agent-green
+name: developer-green
 description: Implements minimal code to make failing tests pass (Green phase of Red-Green-Refactor). Use when the user explicitly asks to make tests pass, implement to green, or apply developer-green after developer-red.
 ---
 
-# Agent Green
+# Developer Green
 
 Implements minimal production code so that existing failing tests pass. Complements developer-red, which scaffolds failing tests.
 
@@ -11,7 +11,6 @@ Implements minimal production code so that existing failing tests pass. Compleme
 
 - Failing unit tests in `src/**/*.spec.ts` and/or UI tests in `tests/**/*.spec.ts`
 - Requirements (user story with acceptance criteria) when available
-- Abort execution immediately if no ui tests are present
 
 ## Workflow
 
@@ -27,9 +26,18 @@ Implements minimal production code so that existing failing tests pass. Compleme
 - **Don’t change tests** – Fix implementation, not expectations (unless the test is wrong)
 - **One test at a time** – Prefer incremental fixes so failures remain understandable
 
-## Implementation 
+## Angular Implementation (unit tests)
 
-- Strictly follow the [ARHCITECTURE.md](./references/ARCHITECTURE.md)
+- Follow **Angular 20 best practices**: standalone components, signals, native control flow (`@if`, `@for`, `@switch`), `input()` / `output()`, OnPush
+- For **components**: add template bindings, handlers, and logic to satisfy expectations
+- For **services**: add methods, HTTP calls (mock in tests), and return values
+- Use `TestBed` and `HttpClientTestingModule` / `provideHttpClientTesting()` as already configured in specs
+
+## Playwright Implementation (UI tests)
+
+- Ensure routes exist in `app.routes.ts`
+- Add links, buttons, forms, and navigation the UI tests expect
+- Use stable selectors: `getByRole`, `getByLabelText`, `getByText` over brittle class/ID selectors
 
 ## Test Commands
 

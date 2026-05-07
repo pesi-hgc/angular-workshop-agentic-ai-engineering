@@ -4,11 +4,9 @@
 
 ## User Story
 
-###
 As a [role]
 I want [capability/feature]
 So that [benefit/outcome]
-###
 
 ## Acceptance Criteria
 
